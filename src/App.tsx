@@ -6,6 +6,7 @@ import {
 } from "./data/model/ClampGeneratorModel.ts";
 import { zodResolver } from "@hookform/resolvers/zod";
 import InputField from "./components/ui/InputField";
+import { codeBlock, codeBlockCode, copyCodeBtn } from "@/App.css.ts";
 
 const App: React.FunctionComponent = () => {
   const {
@@ -17,7 +18,7 @@ const App: React.FunctionComponent = () => {
   });
 
   const [isCalculated, setIsCalculated] = useState<boolean>(false);
-
+  const [copyButtonText, setCopyButtonText] = useState<string>("Copy");
   const [finalClampValue, setFinalClampValue] = useState<string>("");
 
   const onSubmit: SubmitHandler<ClampGeneratorModel> = ({
@@ -35,6 +36,22 @@ const App: React.FunctionComponent = () => {
 
       return `clamp(${minSize}px, ${slope * 100}vw + ${intercept}px, ${maxSize}px)`;
     });
+  };
+
+  const handleCopyClampValue = () => {
+    navigator.clipboard
+      .writeText(finalClampValue)
+      .then(() => {
+        setCopyButtonText("✔ Copied");
+      })
+      .catch((error) => {
+        console.error("Error copying to clipboard: ", error);
+      })
+      .finally(() => {
+        setTimeout(() => {
+          setCopyButtonText("Copy");
+        }, 1000);
+      });
   };
 
   return (
@@ -68,8 +85,11 @@ const App: React.FunctionComponent = () => {
       </form>
 
       {isCalculated && (
-        <div>
-          <code>{finalClampValue}</code>
+        <div className={codeBlock}>
+          <code className={codeBlockCode}>{finalClampValue}</code>
+          <button className={copyCodeBtn} onClick={handleCopyClampValue}>
+            {copyButtonText}
+          </button>
         </div>
       )}
     </>
